@@ -59,8 +59,28 @@ class ReservationService(
         reservation.room.updateStatus(RoomStatus.AVAILABLE)
     }
 
+    fun checkInReservation(reservationId: Int) {
+        val reservation = reservationRepository.findById(reservationId)
+            ?: throw ReservationNotFoundException("Reservation with id $reservationId not found.")
+
+        reservation.room.updateStatus(RoomStatus.OCCUPIED)
+        reservation.confirmReservation()
+    }
+
+    fun checkOutReservation(reservationId: Int) {
+        val reservation = reservationRepository.findById(reservationId)
+            ?: throw ReservationNotFoundException("Reservation with id $reservationId not found.")
+
+        reservation.completeReservation()
+        reservation.room.updateStatus(RoomStatus.AVAILABLE)
+    }
+
     fun getGuestReservations(guestId: Int): List<Reservation> {
         return reservationRepository.findByGuestId(guestId)
+    }
+
+    fun getAllReservations(): List<Reservation> {
+        return reservationRepository.findAll()
     }
 
     fun checkRoomAvailability(roomId: Int): Boolean {
@@ -68,5 +88,9 @@ class ReservationService(
             ?: throw RoomNotFoundException("Room with id $roomId not found.")
 
         return room.isAvailable()
+    }
+
+    fun getActiveReservationForRoom(roomId: Int): Reservation? {
+        return reservationRepository.findActiveReservationByRoomId(roomId)
     }
 }

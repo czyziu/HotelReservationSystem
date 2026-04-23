@@ -35,4 +35,11 @@ class ReservationRepository : Searchable<Reservation> {
     fun findByStatus(status: ReservationStatus): List<Reservation> {
         return reservations.filter { it.status == status }
     }
+
+    fun findActiveReservationByRoomId(roomId: Int): Reservation? {
+        return reservations.find {
+            it.room.id == roomId &&
+                    (it.status == ReservationStatus.CREATED || it.status == ReservationStatus.CONFIRMED)
+        }
+    }
 }
